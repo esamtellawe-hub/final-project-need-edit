@@ -1,0 +1,172 @@
+{
+  "footer": {
+    "brand": "Exchango",
+    "phone": "Phone",
+    "email": "Email",
+    "usefulLinks": "Useful Links",
+    "copyright": "Copyright",
+    "owner": "Exchango",
+    "rights": "All Rights Reserved"
+  },
+  "nav": {
+    "brand": "Exchango",
+    "home": "Home",
+    "about": "About us",
+    "services": "Services",
+    "team": "Team",
+    "swap": "Swap",
+    "contact": " Contact"
+  },
+  "swap": {
+    "loading": "Loading products...",
+    "errorLoading": "Error loading products.",
+    "swapButton": "Swap Now",
+    "by": "by",
+    "loginToSwap": "Login to Swap"
+  },
+  "contact": {
+    "contactUs": "Contact Us",
+    "address": "18, Wadi Saqra Street, 11194 Amman",
+    "email": "Exchango@gmail.com",
+    "phone": "+962 6 555 1234",
+    "fax": "Fax: +962 6 555 1234",
+    "formTitle": "Get in Touch",
+    "name": "Your Name",
+    "emailField": "Your Email",
+    "message": "Typing your message here...",
+    "send": "SEND"
+  },
+  "home": {
+    "title": "Swapping, evolved",
+    "description": "Jordan’s leading online swap platform. We use smart matching technology to help you find the perfect exchange—quickly, safely, and without spending a dinar.",
+    "listButton": "List an item and start swapping today",
+    "swipeButton": "Swap Swipe",
+    "graphicAlt": "Swap illustration",
+    "badlineTitle": "Badline Platform",
+    "badlineDescription": "Badline is a simple yet effective idea: instead of buying or selling, list your item, find something that suits you, and start exchanging directly with others.\nThe platform is designed to be easy, fast, and secure.",
+    "swapAlt": "Swap illustration",
+    "swapTitle": "Can't sell it? Just swap it!",
+    "swapDescription": "Badline is Jordan’s smart swapping platform. Whether it’s a phone, a watch, or anything in between—skip the hassle of selling and start exchanging instantly. No money, no stress—just smart trade.",
+    "swapButton": "List Your Item Now"
+  },
+
+  "details": {
+    "errorLoading": "An error occurred while loading the details.",
+    "loading": "Loading details...",
+    "coverThumbnailAlt": "Cover thumbnail",
+    "extraImageAlt": "Extra image",
+    "estimatedValue": "Estimated Value",
+    "descriptionTitle": "About the Item",
+    "ownerInfo": "Owner Information",
+    "locationUnknown": "Not specified",
+    "itemInfo": "Offer Details",
+    "phone": "Phone Number",
+    "notProvided": "Not provided",
+    "quantity": "Quantity",
+    "pieces": "pieces",
+    "swap": "For Swap",
+    "swapOpen": "Available for swap",
+    "sell": "For Sale",
+    "sellAvailable": "Available for sale",
+    "message": "Message Owner",
+    "callOwner": "Call Owner",
+    "currency": "JD"
+  },
+
+  "addItem": {
+    "title": "Add New Item",
+    "name": "Item Name",
+    "description": "Description",
+    "price": "Price (JOD)",
+    "category": "Category",
+    "image": "Item Image",
+    "submit": "Upload Item",
+    "success": "Item added successfully",
+    "uploaded": "Item uploaded:"
+  },
+  "about": {
+    "title": "About Us",
+    "intro": "Our project aims to provide a simple and secure product exchange experience for users in Jordan.",
+    "visionTitle": "Our Vision",
+    "visionText": "We aspire to build a digital community that facilitates exchange and fosters trust.",
+    "missionTitle": "Our Mission",
+    "missionText": "To offer a fast and transparent platform for fair product swapping.",
+    "teamTitle": "Our Team",
+    "teamText": "We are a group of passionate developers and students building real-world solutions for our community."
+  },
+  "login": {
+    "title": "Sign in",
+    "subtitle": "Sign in below to access your account",
+    "email": "Email Address",
+    "password": "Password",
+    "button": "Sign in",
+    "noAccount": "Don't have an account yet?",
+    "signup": "Sign up",
+    "invalid": "Invalid email or password",
+    "loadError": "Failed to load user data"
+  },
+  "signup": {
+    "title": "Sign up",
+    "subtitle": "Create your account to get started",
+    "name": "Full Name",
+    "email": "Email Address",
+    "password": "Password",
+    "phone": "Phone Number",
+    "location": "Location",
+    "photo": "Profile Photo",
+    "button": "Sign up",
+    "haveAccount": "Already have an account?",
+    "login": "Sign in"
+  },
+
+  "profile": {
+    "noUser": "No user is logged in",
+    "notFound": "User not found in data",
+    "loadError": "Failed to load user file",
+    "loading": "Loading data...",
+    "memberSince": "Member since August 2025",
+    "followers": "Followers",
+    "following": "Following",
+    "email": "📧 Email",
+    "phone": "📞 Phone",
+    "location": "📍 Location",
+    "rating": "⭐ Rating",
+    "editTitle": "Edit Profile",
+    "name": "Name",
+    "emailLabel": "Email",
+    "phoneLabel": "Phone Number",
+    "locationLabel": "Location",
+    "photoLabel": "Profile Photo",
+    "save": "Save Changes",
+    "listingsTitle": "📦 My Listings",
+    "swapTitle": "My Items",
+    "noItems": "No items added yet",
+    "editItem": "Edit Item",
+    "logout": "Logout"
+  },
+  "edit": {
+    "title": "Edit Item",
+    "name": "Item Name",
+    "description": "Description",
+    "price": "Price",
+    "cover": "Cover Image",
+    "gallery": "Gallery Images",
+    "save": "Save Changes"
+  },
+  "notFound": {
+    "message": "The page you're looking for doesn't exist",
+    "back": "Go back to homepage"
+  },
+  "chat": {
+    "estimatedValue": "Estimated Value",
+    "currency": "JD",
+    "loading": "Loading conversation...",
+    "startConversationWithItem": "Start your conversation about \"{{title}}\"",
+    "startConversation": "Start the conversation",
+    "placeholder": "Type a message..."
+  },
+  "messageBubble": {
+    "invalidTimestamp": "وقت غير صالح",
+    "timeError": "..."
+  }
+}

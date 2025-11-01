@@ -1,0 +1,29 @@
+[
+  {
+    "id": 1,
+    "email": "esam@example.com",
+    "password": "123456",
+    "name": "Esam",
+    "phone": "+962 782 123 123",
+    "location": "Amman, Jordan",
+    "photo": "/images/profile.jpeg"
+  },
+  {
+    "id": 2,
+    "email": "admin@example.com",
+    "password": "admin123",
+    "name": "Admin",
+    "phone": "+962 799 456 789",
+    "location": "Zarqa, Jordan",
+    "photo": "/images/beach.jpg"
+  },
+  {
+    "id": 3,
+    "email": "adminn@example.com",
+    "password": "admin123",
+    "name": "Admin",
+    "phone": "+962 799 456 789",
+    "location": "Zarqa, Jordan",
+    "photo": ""
+  }
+]
