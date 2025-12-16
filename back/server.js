@@ -1,87 +1,54 @@
 const express = require("express");
-const cors = require("cors");
-require("dotenv").config();
-const path = require("path");
-const http = require("http");
+const http = require("http"); // ضروري للسوكت
 const socketIo = require("socket.io");
-
-const { sequelize } = require("./models");
-
-const usersRoutes = require("./routes/users");
-const itemsRoutes = require("./routes/items");
-const messagesRoutes = require("./routes/messages");
-const adminRoutes = require("./routes/adminRoutes"); // (موجود مسبقاً)
-const upload = require("./middleware/upload");
+const cors = require("cors");
+const path = require("path");
+const db = require("./config/db"); // تأكد من المسار
+const dotenv = require("dotenv");
+// Routes
+const messageRoutes = require("./routes/messages");
+const contactRoutes = require("./routes/contact"); // ✅ تمت الإضافة: استدعاء ملف الكونتاكت
+const itemRoutes = require("./routes/items");
+const adminRoutes = require("./routes/adminRoutes");
+const userRoutes = require("./routes/users");
+const categoryRoutes = require("./routes/categories");
+require("dotenv").config();
 
 const app = express();
-const server = http.createServer(app);
+const server = http.createServer(app); // ربط express بـ http server
+
+// إعداد Socket.io مع CORS (مهم جداً عشان الفرونت إند يشبك)
 const io = socketIo(server, {
   cors: {
-    origin: "http://localhost:5173", // (السوكت ما زال للفرونت إند فقط حالياً)
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true,
+    origin: "*", // أو رابط الفرونت إند "http://localhost:3000"
+    methods: ["GET", "POST"],
   },
 });
 
-// ✅ إعداد Socket.io
+// Middlewares
+app.use(cors());
+app.use(express.json());
+app.use("/uploads", express.static(path.join(__dirname, "uploads"))); // لصور المنتجات
+
+// Routes
+app.use("/api/messages", messageRoutes);
+app.use("/api/contact", contactRoutes); // ✅ تمت الإضافة: تفعيل رابط الكونتاكت
+app.use("/api/items", itemRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/categories", categoryRoutes);
+// تشغيل منطق السوكت
 require("./socket")(io);
 
+// تشغيل السيرفر
 const PORT = process.env.PORT || 5050;
 
-// ---------------------------------
-// ✅ --- (هنا التعديل) --- ✅
-// ---------------------------------
-// 1. تعريف المصادر المسموح لها
-const allowedOrigins = [
-  "http://localhost:5173", // (الفرونت إند لليوزر)
-  "http://localhost:5174", // (الفرونت إند للـ CMS)
-];
-
-// 2. إعداد CORS الديناميكي
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      // السماح بالطلبات التي لا تحتوي على origin (مثل Postman)
-      // أو الطلبات الموجودة في القائمة المسموحة
-      if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    credentials: true,
-  })
-);
-app.options("*", cors()); // السماح بالـ pre-flight requests
-
-// (تم حذف كود app.use(res.header...) القديم لأنه مكرر وغير ضروري الآن)
-// ---------------------------------
-// ✅ --- (نهاية التعديل) --- ✅
-// ---------------------------------
-
-app.use(express.json());
-app.use("/uploads", express.static("uploads"));
-
-app.get("/", (req, res) => {
-  res.send("🚀 Backend is running with Socket.io!");
-});
-
-// ✅ ربط الراوترات
-app.use("/api/users", usersRoutes);
-app.use("/api/items", itemsRoutes);
-app.use("/api/messages", messagesRoutes);
-app.use("/api/admin", adminRoutes);
-
-// ✅ تشغيل السيرفر بعد مزامنة قاعدة البيانات
-sequelize
-  .sync()
+db.sync()
   .then(() => {
-    console.log("📦 Database synced");
     server.listen(PORT, () => {
-      console.log(`✅ Server + Socket.io listening on port ${PORT}`);
+      console.log(`🚀 Server running on port ${PORT}`);
     });
   })
   .catch((err) => {
-    console.error("❌ Sync error:", err);
+    console.error("❌ DB Connection Error:", err);
   });

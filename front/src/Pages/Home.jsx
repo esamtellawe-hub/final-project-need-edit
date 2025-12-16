@@ -3,10 +3,11 @@ import Graphic from "../../public/images/Graphic (1).svg";
 import swaping from "../../public/images/swaping (2).png";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
+
 const Home = () => {
   const { t, i18n } = useTranslation();
   return (
-    <div dir={i18n.language === "ar" ? "rtl" : "ltr"}>
+    <div dir={i18n.language === "ar" ? "ltr" : "rtl"}>
       {/* القسم الأول */}
       <section className="flex flex-col xl:flex-row items-center justify-around py-10 px-4 xl:px-20">
         <div className="text-center xl:text-start mb-8 xl:mb-0 max-w-xl">
@@ -27,8 +28,8 @@ const Home = () => {
             </Link>
           </div>
         </div>
-
         <div className="text-center">
+          {/* التعديل تم هنا */}
           <img
             src={Graphic}
             alt={t("home.graphicAlt")}

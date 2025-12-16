@@ -13,6 +13,11 @@ const Item = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
+    // ✅ تمت إضافة حقل معرف الفئة
+    category_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false, // جعلناه إجبارياً ليتم ربط كل منتج بفئة
+    },
     title: {
       type: DataTypes.STRING(255),
       allowNull: false,

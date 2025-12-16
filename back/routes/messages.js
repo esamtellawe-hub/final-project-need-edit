@@ -3,7 +3,7 @@ const router = express.Router();
 const { Message, User } = require("../models");
 const { Op } = require("sequelize");
 
-// ✅ إرسال رسالة جديدة
+// ✅ إرسال رسالة جديدة (HTTP Endpoint - اختياري إذا كنت تعتمد كلياً على السوكت)
 router.post("/", async (req, res) => {
   try {
     const { sender_id, receiver_id, text } = req.body;
@@ -22,7 +22,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-// ✅ جلب المحادثة بين مستخدمين
+// ✅ جلب المحادثة بين مستخدمين (هذا هو الرابط الذي يستخدمه الفرونت إند في useEffect)
 router.get("/conversation/:user1/:user2", async (req, res) => {
   try {
     const { user1, user2 } = req.params;
@@ -34,13 +34,15 @@ router.get("/conversation/:user1/:user2", async (req, res) => {
           { sender_id: user2, receiver_id: user1 },
         ],
       },
+      // تأكد من تعريف هذه العلاقات في models/index.js
       include: [
         { model: User, as: "sender", attributes: ["id", "name", "photo"] },
         { model: User, as: "receiver", attributes: ["id", "name", "photo"] },
       ],
-      order: [["created_at", "ASC"]],
+      order: [["created_at", "ASC"]], // الترتيب من الأقدم للأحدث
     });
-    console.log("📦 Messages found:", messages.length);
+
+    // console.log("📦 Messages found:", messages.length);
     res.json({ messages });
   } catch (err) {
     console.error("❌ خطأ في جلب المحادثة:", err);

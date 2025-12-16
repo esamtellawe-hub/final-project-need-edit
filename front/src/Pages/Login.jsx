@@ -13,8 +13,21 @@ export default function Login() {
   const { t } = useTranslation();
   const isRTL = i18n.language === "ar";
   const { login } = useAuth();
+
+  const handleInputChange = (setter) => (e) => {
+    setter(e.target.value);
+    if (error) setError("");
+  };
+
   const handleLogin = async (e) => {
     e.preventDefault();
+
+    // 1. فحص يدوي للحقول الفارغة لأننا لغينا رسالة المتصفح
+    if (!email || !password) {
+      setError(t("login.empty")); // أو استخدم مفتاح ترجمة مناسب
+      return;
+    }
+
     try {
       const res = await axios.post("http://localhost:5050/api/users/login", {
         email,
@@ -22,7 +35,7 @@ export default function Login() {
       });
 
       if (res.data?.user) {
-        login(res.data.user); // بدل localStorage مباشرة
+        login(res.data.user);
         navigate("/Profile");
       } else {
         setError(t("login.invalid"));
@@ -39,71 +52,103 @@ export default function Login() {
         isRTL ? "text-right" : "text-left"
       }`}
     >
-      <div className="w-full max-w-md bg-white px-6 pt-10 pb-8 shadow-xl ring-1 ring-gray-900/5 sm:rounded-xl sm:px-10">
+      <div className="w-full max-w-md bg-white px-6 pt-10 pb-8 shadow-xl ring-1 ring-gray-900/5 sm:rounded-xl sm:px-10 border-t-4 border-[#dc3545]">
         <div className="text-center">
           <h1 className="text-3xl font-semibold text-[#dc3545]">
             {t("login.title")}
           </h1>
           <p className="mt-2 text-gray-500">{t("login.subtitle")}</p>
         </div>
-        <form onSubmit={handleLogin} className="mt-5 space-y-6">
-          {error && <p className="text-red-600 text-sm text-center">{error}</p>}
+
+        {/* 2. إضافة noValidate هنا لمنع ظهور رسالة المتصفح */}
+        <form onSubmit={handleLogin} noValidate className="mt-5 space-y-6">
+          {error && (
+            <div className="p-3 bg-red-50 border border-red-100 rounded text-red-600 text-sm text-center font-medium animate-pulse">
+              {error}
+            </div>
+          )}
+
+          {/* Email Input */}
           <div className="relative">
             <input
-              required
               type="email"
               name="email"
               id="email"
               placeholder={t("login.email")}
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className={`peer mt-1 w-full border-b-2 border-gray-300 px-0 py-1 placeholder:text-transparent focus:border-gray-500 focus:outline-none ${
-                isRTL ? "text-right" : "text-left"
-              }`}
+              onChange={handleInputChange(setEmail)}
+              className={`peer mt-1 w-full border-b-2 px-0 py-1 placeholder:text-transparent focus:outline-none transition-colors duration-200
+                ${
+                  error
+                    ? "border-[#dc3545] text-[#dc3545]"
+                    : "border-gray-300 focus:border-[#dc3545] text-gray-900"
+                }
+                ${isRTL ? "text-right" : "text-left"}`}
               autoComplete="off"
             />
             <label
               htmlFor="email"
-              className={`pointer-events-none absolute top-0 ${
-                isRTL ? "right-0 origin-right" : "left-0 origin-left"
-              } -translate-y-1/2 transform text-sm text-gray-800 opacity-75 transition-all duration-100 ease-in-out peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-500 peer-focus:top-0 peer-focus:pl-0 peer-focus:text-sm peer-focus:text-gray-800`}
+              className={`pointer-events-none absolute top-0 -translate-y-1/2 transform text-sm transition-all duration-200 ease-in-out 
+                peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-500 
+                peer-focus:top-0 peer-focus:pl-0 peer-focus:text-sm 
+                ${isRTL ? "right-0 origin-right" : "left-0 origin-left"}
+                ${
+                  error
+                    ? "text-[#dc3545]"
+                    : "text-gray-500 peer-focus:text-[#dc3545]"
+                }
+              `}
             >
               {t("login.email")}
             </label>
           </div>
+
+          {/* Password Input */}
           <div className="relative">
             <input
-              required
-              type="password"
+              type="password" // شلت ال required من هون لانه noValidate بتلغي تأثيرها
               name="password"
               id="password"
               placeholder={t("login.password")}
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className={`peer mt-1 w-full border-b-2 border-gray-300 px-0 py-1 placeholder:text-transparent focus:border-gray-500 focus:outline-none ${
-                isRTL ? "text-right" : "text-left"
-              }`}
+              onChange={handleInputChange(setPassword)}
+              className={`peer mt-1 w-full border-b-2 px-0 py-1 placeholder:text-transparent focus:outline-none transition-colors duration-200
+                ${
+                  error
+                    ? "border-[#dc3545] text-[#dc3545]"
+                    : "border-gray-300 focus:border-[#dc3545] text-gray-900"
+                }
+                ${isRTL ? "text-right" : "text-left"}`}
             />
             <label
               htmlFor="password"
-              className={`pointer-events-none absolute top-0 ${
-                isRTL ? "right-0 origin-right" : "left-0 origin-left"
-              } -translate-y-1/2 transform text-sm text-gray-800 opacity-75 transition-all duration-100 ease-in-out peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-500 peer-focus:top-0 peer-focus:pl-0 peer-focus:text-sm peer-focus:text-gray-800`}
+              className={`pointer-events-none absolute top-0 -translate-y-1/2 transform text-sm transition-all duration-200 ease-in-out 
+                peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-500 
+                peer-focus:top-0 peer-focus:pl-0 peer-focus:text-sm 
+                ${isRTL ? "right-0 origin-right" : "left-0 origin-left"}
+                ${
+                  error
+                    ? "text-[#dc3545]"
+                    : "text-gray-500 peer-focus:text-[#dc3545]"
+                }
+              `}
             >
               {t("login.password")}
             </label>
           </div>
+
           <button
             type="submit"
-            className="w-full rounded-md bg-[#dc3545] px-3 py-4 text-white hover:bg-red-600 focus:outline-none"
+            className="w-full rounded-md bg-[#dc3545] px-3 py-4 text-white font-bold hover:bg-[#c82333] shadow-lg shadow-red-100 focus:outline-none focus:ring-4 focus:ring-red-200 transition-all"
           >
             {t("login.button")}
           </button>
+
           <p className="text-center text-sm text-gray-500">
             {t("login.noAccount")}{" "}
             <a
               href="/SignUp"
-              className="font-semibold text-[#dc3545] hover:underline focus:text-gray-800 focus:outline-none"
+              className="font-semibold text-[#dc3545] hover:underline focus:text-[#c82333] focus:outline-none"
             >
               {t("login.signup")}
             </a>
