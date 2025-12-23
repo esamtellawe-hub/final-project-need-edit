@@ -4,9 +4,10 @@ const upload = require("../middleware/upload");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const { User } = require("../models");
+// ✅ استيراد ميدلوير التحقق من التوكن (تأكدنا أن المسار صحيح)
+const verifyToken = require("../middleware/verifyToken");
 
 // 🔒 دالة مساعدة للتحقق من قوة كلمة المرور
-// الشروط: 8 أحرف على الأقل، حرف كبير، حرف صغير، رقم، رمز خاص
 const validatePassword = (password) => {
   const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
   return regex.test(password);
@@ -16,7 +17,9 @@ const validatePassword = (password) => {
 const passwordErrorMessage =
   "كلمة المرور يجب أن تكون 8 أحرف على الأقل وتحتوي على حرف كبير (A-Z)، حرف صغير (a-z)، رقم (0-9)، ورمز خاص (@, $, !, الخ).";
 
-// ✅ تسجيل مستخدم جديد
+// ==========================================
+// ✅ تسجيل مستخدم جديد (Register)
+// ==========================================
 router.post("/register", upload.single("photo"), async (req, res) => {
   const { name, email, password, phone, location } = req.body;
   const photo = req.file ? req.file.filename : null;
@@ -28,7 +31,7 @@ router.post("/register", upload.single("photo"), async (req, res) => {
         .json({ error: "الاسم والبريد وكلمة المرور مطلوبة" });
     }
 
-    // 🔒 التحقق من قوة كلمة المرور عند التسجيل
+    // التحقق من قوة كلمة المرور
     if (!validatePassword(password)) {
       return res.status(400).json({ error: passwordErrorMessage });
     }
@@ -50,14 +53,20 @@ router.post("/register", upload.single("photo"), async (req, res) => {
       photo,
     });
 
-    res.status(201).json({ message: "تم التسجيل بنجاح", user: newUser });
+    // 🛡️ تعديل أمني: حذف الباسورد قبل إرسال الرد
+    const userResponse = newUser.toJSON();
+    delete userResponse.password;
+
+    res.status(201).json({ message: "تم التسجيل بنجاح", user: userResponse });
   } catch (err) {
     console.error("❌ خطأ في التسجيل:", err);
     res.status(500).json({ error: "خطأ في السيرفر" });
   }
 });
 
-// ✅ تسجيل الدخول
+// ==========================================
+// ✅ تسجيل الدخول (Login)
+// ==========================================
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
@@ -82,7 +91,7 @@ router.post("/login", async (req, res) => {
       name: user.name,
     };
 
-    const token = jwt.sign(tokenPayload, process.env.JWT_SECRET, {
+    const token = jwt.sign(tokenPayload, "mySuperSecretKey123", {
       expiresIn: "1d",
     });
 
@@ -105,12 +114,18 @@ router.post("/login", async (req, res) => {
   }
 });
 
-// ✅ جلب بيانات مستخدم معين (GET)
-router.get("/:id", async (req, res) => {
+// ==========================================
+// ✅ جلب بيانات مستخدم معين (GET Profile)
+// ==========================================
+// 🛡️ أضفنا verifyToken لحماية البيانات (اختياري حسب الرغبة بجعل البروفايل عام أو خاص)
+router.get("/:id", verifyToken, async (req, res) => {
   try {
     const { id } = req.params;
 
-    const user = await User.findByPk(id);
+    // 🛡️ تعديل أمني: استثناء حقل الباسورد من الاستعلام
+    const user = await User.findByPk(id, {
+      attributes: { exclude: ["password"] },
+    });
 
     if (!user) {
       return res.status(404).json({ error: "المستخدم غير موجود" });
@@ -123,9 +138,21 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// ✅ تعديل بيانات المستخدم
-router.put("/:id", upload.single("photo"), async (req, res) => {
+// ==========================================
+// ✅ تعديل بيانات المستخدم (Update Profile)
+// ==========================================
+// 🛡️ أضفنا verifyToken للتأكد من هوية المعدل
+router.put("/:id", verifyToken, upload.single("photo"), async (req, res) => {
   const { id } = req.params;
+
+  // 🛡️ تعديل أمني هام جداً:
+  // التأكد أن الشخص الذي يقوم بالتعديل هو صاحب الحساب نفسه (أو أدمن)
+  if (req.user.id != id && req.user.role !== "admin") {
+    return res
+      .status(403)
+      .json({ error: "غير مصرح لك بتعديل بيانات هذا المستخدم" });
+  }
+
   const { name, email, phone, location, password } = req.body;
   const photo = req.file ? req.file.filename : null;
 
@@ -143,7 +170,6 @@ router.put("/:id", upload.single("photo"), async (req, res) => {
 
     // 🔒 إذا تم إرسال كلمة مرور جديدة، نتحقق منها أولاً ثم نشفرها
     if (password && password.trim() !== "") {
-      // التحقق من القوة
       if (!validatePassword(password)) {
         return res.status(400).json({ error: passwordErrorMessage });
       }
@@ -155,7 +181,7 @@ router.put("/:id", upload.single("photo"), async (req, res) => {
 
     await user.update(updateData);
 
-    // إرجاع البيانات بدون الباسورد
+    // 🛡️ إرجاع البيانات بدون الباسورد
     const userResponse = user.toJSON();
     delete userResponse.password;
 

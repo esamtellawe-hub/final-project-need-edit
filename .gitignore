@@ -1,16 +1,29 @@
-# تجاهل كل مجلدات node_modules في المشروع
-**/node_modules
+# Dependencies
+node_modules/
+package-lock.json  # (اختياري، يفضل رفعه لتوحيد النسخ، لكن node_modules ممنوع)
+yarn.lock
 
-# تجاهل كل ملفات .env (لأنها تحتوي على بيانات حساسة)
-**/.env
+# Environment Variables (سري جداً!)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
-# تجاهل ملفات النظام
+# Build Output
+dist/
+build/
+
+# Uploads (عشان ما ترفع صور المستخدمين وتثقل الموقع)
+uploads/
+backend/uploads/
+server/uploads/
+
+# OS Files
 .DS_Store
+Thumbs.db
 
-# تجاهل ملفات اللوغ (Logs)
-*.log
+# Logs
 npm-debug.log*
-
-# تجاهل مجلدات البناء (Build)
-**/dist
-**/build
+yarn-debug.log*
+yarn-error.log*

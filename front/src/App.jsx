@@ -13,9 +13,10 @@ import AddItem from "./Pages/AddItem";
 import AboutUs from "./Pages/Aboutus";
 import EditItem from "./Pages/EditItem";
 import NotFound from "./pages/NotFound";
-import Chat from "./Pages/Chat"; // ✅ صفحة المحادثة
+import Chat from "./Pages/Chat";
 import Messages from "./Pages/Messages";
 import MessageBubble from "./components/MessageBubble";
+import Favorites from "./pages/Favorites";
 function ChatWrapper() {
   const { receiverId } = useParams();
   return <Chat receiverId={parseInt(receiverId)} />;
@@ -50,6 +51,7 @@ function App() {
           <Route path="/edit/:id" element={<EditItem />} />
           <Route path="/chat/:receiverId" element={<ChatWrapper />} />{" "}
           <Route path="/messages" element={<Messages />} />
+          <Route path="/favorites" element={<Favorites />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Layout>

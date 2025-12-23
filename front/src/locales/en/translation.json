@@ -1,15 +1,15 @@
 {
   "footer": {
-    "brand": "Exchango",
+    "brand": "ExchanGo",
     "phone": "Phone",
     "email": "Email",
     "usefulLinks": "Useful Links",
     "copyright": "Copyright",
-    "owner": "Exchango",
+    "owner": "ExchanGo",
     "rights": "All Rights Reserved"
   },
   "nav": {
-    "brand": "Exchango",
+    "brand": "ExchanGo",
     "home": "Home",
     "about": "About us",
     "services": "Services",
@@ -17,18 +17,21 @@
     "swap": "Swap",
     "contact": " Contact"
   },
-  "swap": {
-    "loading": "Loading products...",
-    "errorLoading": "Error loading products.",
-    "swapButton": "Swap Now",
-    "by": "by",
-    "loginToSwap": "Login to Swap"
+  "messages": {
+    "title": "Messages",
+    "conversationCount": "{{count}} conversation",
+    "emptyState": {
+      "title": "Inbox is empty",
+      "subtitle": "Start a new conversation with sellers now!"
+    },
+    "you": "You:",
+    "photo": "📷 Photo"
   },
   "contact": {
     "contactUs": "Contact Us",
     "address": "18, Wadi Saqra Street, 11194 Amman",
     "email": "Exchango@gmail.com",
-    "phone": "+962 6 555 1234",
+    "phone": ":+962795723505",
     "fax": "Fax: +962 6 555 1234",
     "formTitle": "Get in Touch",
     "name": "Your Name",
@@ -193,19 +196,58 @@
   },
 
   "common": {
+    "addItem": "Start Swapping",
+    "retry": "Retry",
+    "browse": "Browse Items",
+    "save": "Save",
     "cancel": "Cancel"
+  },
+  "min": "Min",
+  "max": "Max",
+  "owner": "Owner",
+  "Unknown": "Unknown",
+  "favorites": {
+    "title": "My Favorites",
+    "subtitle": "Items you liked and want to check later",
+    "empty": "You don't have any favorite items yet",
+    "browse": "Browse Items Now",
+    "errorLoading": "Error loading favorites"
+  },
+  "swap": {
+    "title": "Discover.",
+    "highlight": "Swap.",
+    "suffix": "Save.",
+    "subtitle": "The best platform for swapping items in Jordan. Browse thousands of offers, connect with sellers, and close deals easily.",
+    "searchPlaceholder": "Search item (Laptop, Car...)",
+    "categoryLabel": "Select Category",
+    "allCategories": "All Categories",
+    "reset": "Reset Filters",
+    "noResults": "No matching results found",
+    "tryDifferent": "Try searching with different keywords or filters",
+    "clearFilters": "View all items",
+    "errorLoading": "Error loading items",
+    "edit": "Edit",
+    "details": "Details",
+    "login": "Login"
+  },
+  "stats": {
+    "items": "Active Items",
+    "swaps": "Swaps Done",
+    "free": "Free"
   },
   "validation": {
     "nameRequired": "Name is required",
     "nameMin": "Name must be at least 3 characters",
     "emailRequired": "Email is required",
     "emailInvalid": "Invalid email format",
-    "phoneNumeric": "Phone number must contain digits only",
-    "phoneMin": "Phone number is too short (min 10 digits)",
-    "required": "This field is required",
-    "pricePositive": "Price must be greater than zero",
-    "passwordWeak": "Password must be 8+ chars, include Uppercase, Lowercase, Number, and Symbol.",
-    "passwordMismatch": "Passwords do not match"
+    "passwordRequired": "Password is required",
+    "passwordMin": "Password must be at least 8 characters",
+    "passwordComplexity": "Must contain uppercase, lowercase, number, and special char",
+    "phoneRequired": "Phone number is required",
+    "phoneInvalid": "Must be a valid Jordanian number (e.g., 0791234567)",
+    "locationRequired": "Location is required",
+    "fileSizeError": "File size is too large (Max 5MB)",
+    "photoLabel": "Choose a profile photo"
   },
   "profile": {
     "editTitle": "Edit Profile",
@@ -232,7 +274,17 @@
     "passwordRules": "* Password must be at least 8 characters, include an uppercase letter, a lowercase letter, a number, and a special symbol.",
     "updateSuccess": "Profile updated successfully",
     "updateError": "Update failed, please try again",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "logoutConfirm": "Are you sure you want to logout?",
+    "yes": "Yes",
+    "no": "No",
+    "deleteItem": "Delete Item",
+    "deleteConfirm": "Are you sure you want to delete this item?",
+    "deleteSuccess": "Item deleted successfully",
+    "deleteError": "Failed to delete item, please try again",
+    "addItem": "Add New Item",
+    "itemsCount": "Items Listed: {{count}}",
+    "cancel": "Cancel"
   },
   "edit": {
     "title": "Edit Item",
@@ -241,12 +293,44 @@
     "price": "Price",
     "cover": "Cover Image",
     "gallery": "Gallery Images",
-    "save": "Save Changes"
+    "save": "Save Changes",
+    "processing": "Processing...",
+    "success": "Item updated successfully!",
+    "error": "Failed to update item, try again.",
+    "errors": {
+      "required": "This field is required",
+      "requiredCover": "Cover image is required",
+      "invalidPrice": "Value must be greater than 0",
+      "shortDesc": "Description is too short",
+      "invalidType": "Invalid file type (Images only)",
+      "tooLarge": "File is too large (Max 5MB)",
+      "maxGallery": "You can only upload up to 10 images",
+      "someInvalid": "Some files are invalid"
+    },
+    "removeImage": "Remove Image",
+    "keepImage": "Keep Image",
+    "changeImage": "Change Image",
+    "imageOptions": "Image Options",
+    "coverThumbnailAlt": "Cover thumbnail",
+    "extraImageAlt": "Extra image",
+    "loading": "Loading item details...",
+    "loadError": "An error occurred while loading the item details."
   },
 
   "notFound": {
     "message": "The page you're looking for doesn't exist",
-    "back": "Go back to homepage"
+    "back": "Go back to homepage",
+    "alt": "404 Not Found Illustration",
+    "title": "Page Not Found",
+    "subtitle": "Oops! The page you are looking for does not exist.",
+    "description": "It might have been moved or deleted. Please check the URL or return to the homepage.",
+    "homeButton": "Return to Homepage",
+    "contactButton": "Contact Support",
+    "contactUs": "Contact Us",
+    "address": "18, Wadi Saqra Street, 11194 Amman",
+    "email": "contact@example.com",
+    "phone": "+962 6 555 1234",
+    "fax": "Fax: +962 6 555 1234"
   },
   "chat": {
     "estimatedValue": "Estimated Value",
@@ -254,7 +338,14 @@
     "loading": "Loading conversation...",
     "startConversationWithItem": "Start your conversation about \"{{title}}\"",
     "startConversation": "Start the conversation",
-    "placeholder": "Type a message..."
+    "placeholder": "Type a message...",
+    "send": "Send",
+    "noMessages": "No messages yet. Start the conversation!",
+    "errorLoading": "Error loading conversation.",
+    "errorSending": "Error sending message.",
+    "typing": "is typing...",
+    "online": "Online",
+    "offline": "Offline"
   },
   "messageBubble": {
     "invalidTimestamp": "وقت غير صالح",

@@ -1,3 +1,4 @@
+require("dotenv").config(); // 👈 لازم يكون أول سطر
 const express = require("express");
 const http = require("http"); // ضروري للسوكت
 const socketIo = require("socket.io");
@@ -12,8 +13,7 @@ const itemRoutes = require("./routes/items");
 const adminRoutes = require("./routes/adminRoutes");
 const userRoutes = require("./routes/users");
 const categoryRoutes = require("./routes/categories");
-require("dotenv").config();
-
+const favoriteRoutes = require("./routes/favorites"); // استدعاء ملف المفضلات
 const app = express();
 const server = http.createServer(app); // ربط express بـ http server
 
@@ -37,6 +37,7 @@ app.use("/api/items", itemRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/categories", categoryRoutes);
+app.use("/api/favorites", favoriteRoutes); // ✅ تمت الإضافة: تفعيل رابط المفضلات
 // تشغيل منطق السوكت
 require("./socket")(io);
 
