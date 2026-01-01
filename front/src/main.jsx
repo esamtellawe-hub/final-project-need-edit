@@ -6,14 +6,15 @@ import "./i18n";
 import { BrowserRouter } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { SocketProvider } from "./context/SocketContext";
+
 createRoot(document.getElementById("root")).render(
-  <AuthProvider>
-    <StrictMode>
-      <BrowserRouter>
+  <StrictMode>
+    <BrowserRouter>
+      <AuthProvider>
         <SocketProvider>
           <App />
         </SocketProvider>
-      </BrowserRouter>
-    </StrictMode>
-  </AuthProvider>
+      </AuthProvider>
+    </BrowserRouter>
+  </StrictMode>
 );

@@ -8,30 +8,83 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import i18n from "../i18n";
 
-// ✅ تعريف الصورة الافتراضية
+// أيقونات للتصميم الجديد
+import {
+  CheckCircle,
+  AlertCircle,
+  X,
+  Trash2,
+  Edit,
+  LogOut,
+  Package,
+  Plus,
+} from "lucide-react";
+
 const DefaultPhoto = "/images/profile.jpeg";
 
 const Profile = () => {
   const { t } = useTranslation();
   const isRTL = i18n.language === "ar";
-
-  // ✅ استدعاء البيانات من الكونتكست
   const { user, token, logout } = useAuth();
   const navigate = useNavigate();
 
-  // State
+  // Data States
   const [userData, setUserData] = useState(null);
-  const [showForm, setShowForm] = useState(false);
-  const [fetchError, setFetchError] = useState("");
   const [myItems, setMyItems] = useState([]);
+  const [showForm, setShowForm] = useState(false);
   const [imagePreview, setImagePreview] = useState(null);
 
-  // 🗑️ State for Custom Delete Modal
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [itemToDelete, setItemToDelete] = useState(null);
-  const [isDeleting, setIsDeleting] = useState(false);
+  // Loading & Error States
+  const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState("");
 
-  // 1. Validation Schema
+  // 🔥 Popup State (General: Success/Error/Confirm)
+  const [popup, setPopup] = useState({
+    isOpen: false,
+    type: "success", // 'success', 'error', 'delete'
+    title: "",
+    message: "",
+    onConfirm: null, // Only for delete confirmation
+  });
+
+  const [isProcessing, setIsProcessing] = useState(false); // To show spinner on buttons
+
+  // --- Popup Helpers ---
+  const closePopup = () => setPopup((prev) => ({ ...prev, isOpen: false }));
+
+  const showSuccess = (msg) => {
+    setPopup({
+      isOpen: true,
+      type: "success",
+      title: t("تم بنجاح"),
+      message: msg,
+      onConfirm: null,
+    });
+  };
+
+  const showError = (msg) => {
+    setPopup({
+      isOpen: true,
+      type: "error",
+      title: t("خطأ"),
+      message: msg,
+      onConfirm: null,
+    });
+  };
+
+  const showDeleteConfirm = (id) => {
+    setPopup({
+      isOpen: true,
+      type: "delete",
+      title: t("تأكيد الحذف"),
+      message: t(
+        "هل أنت متأكد أنك تريد حذف هذا المنتج؟ لا يمكن التراجع عن هذا الإجراء."
+      ),
+      onConfirm: () => confirmDelete(id),
+    });
+  };
+
+  // --- Validation ---
   const validationSchema = yup.object().shape({
     name: yup
       .string()
@@ -64,15 +117,12 @@ const Profile = () => {
         t("validation.passwordMismatch"),
         function (value) {
           const { password } = this.parent;
-          if (password && value !== password) {
-            return false;
-          }
+          if (password && value !== password) return false;
           return true;
         }
       ),
   });
 
-  // 2. Setup Form
   const {
     register,
     handleSubmit,
@@ -83,19 +133,14 @@ const Profile = () => {
     resolver: yupResolver(validationSchema),
   });
 
-  // 3. Fetch Data
+  // --- Fetch Data ---
   useEffect(() => {
-    if (!token) {
-      setFetchError("Please login first.");
-      return;
-    }
-
+    if (!token) return;
     if (!user?.id) return;
 
     const fetchProfileData = async () => {
-      const config = {
-        headers: { Authorization: `Bearer ${token}` },
-      };
+      setLoading(true);
+      const config = { headers: { Authorization: `Bearer ${token}` } };
 
       try {
         const userRes = await axios.get(
@@ -123,14 +168,24 @@ const Profile = () => {
         setMyItems(itemsRes.data.items || []);
       } catch (err) {
         console.error("❌ Error fetching data:", err);
-        setFetchError(
-          t("profile.updateError") + " (Status: " + err.response?.status + ")"
-        );
+        if (
+          err.response &&
+          (err.response.status === 403 || err.response.status === 401)
+        ) {
+          logout();
+          navigate("/Login");
+        } else {
+          setFetchError(
+            t("profile.updateError") + " (Status: " + err.response?.status + ")"
+          );
+        }
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchProfileData();
-  }, [user, token, reset, t]);
+  }, [user, token, reset, t, logout, navigate]);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -147,21 +202,15 @@ const Profile = () => {
     return DefaultPhoto;
   };
 
-  // 4. Update Profile Logic
+  // --- Update Profile ---
   const onSubmit = async (data) => {
     const formData = new FormData();
     formData.append("name", data.name);
     formData.append("email", data.email);
     formData.append("phone", data.phone || "");
     formData.append("location", data.location || "");
-
-    if (data.password) {
-      formData.append("password", data.password);
-    }
-
-    if (data.photo instanceof File) {
-      formData.append("photo", data.photo);
-    }
+    if (data.password) formData.append("password", data.password);
+    if (data.photo instanceof File) formData.append("photo", data.photo);
 
     try {
       const res = await axios.put(
@@ -182,48 +231,33 @@ const Profile = () => {
         setShowForm(false);
         setImagePreview(null);
         reset({ ...updatedUser, password: "", confirmPassword: "" });
-        alert(t("profile.updateSuccess") || "تم تحديث البيانات بنجاح");
+        showSuccess(t("profile.updateSuccess") || "تم تحديث البيانات بنجاح");
       }
     } catch (err) {
       console.error("Update Error:", err);
       const backendError =
         err.response?.data?.error || t("profile.updateError");
-      alert(backendError);
+      showError(backendError);
     }
   };
 
-  // 5. Delete Logic (With Modal)
-
-  // فتح النافذة
-  const handleDeleteClick = (id) => {
-    setItemToDelete(id);
-    setShowDeleteModal(true);
-  };
-
-  // إغلاق النافذة
-  const closeDeleteModal = () => {
-    setShowDeleteModal(false);
-    setItemToDelete(null);
-  };
-
-  // تنفيذ الحذف
-  const confirmDelete = async () => {
-    if (!itemToDelete) return;
-
-    setIsDeleting(true);
+  // --- Delete Item ---
+  const confirmDelete = async (id) => {
+    setIsProcessing(true);
     try {
-      await axios.delete(`http://localhost:5050/api/items/${itemToDelete}`, {
+      await axios.delete(`http://localhost:5050/api/items/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setMyItems((prev) => prev.filter((item) => item.id !== itemToDelete));
-      closeDeleteModal();
-      // يمكن إضافة توست (toast) هنا بدلاً من الـ alert
-      // alert(t("تم حذف العنصر بنجاح"));
+      setMyItems((prev) => prev.filter((item) => item.id !== id));
+      closePopup();
+      // تأخير بسيط لإظهار رسالة النجاح بعد إغلاق نافذة الحذف
+      setTimeout(() => showSuccess(t("تم حذف العنصر بنجاح")), 300);
     } catch (err) {
       console.error("Delete Error:", err);
-      alert(t("حدث خطأ أثناء الحذف"));
+      closePopup();
+      setTimeout(() => showError(t("حدث خطأ أثناء الحذف")), 300);
     } finally {
-      setIsDeleting(false);
+      setIsProcessing(false);
     }
   };
 
@@ -232,19 +266,20 @@ const Profile = () => {
     navigate("/Login");
   };
 
-  if (fetchError && !userData)
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <p className="text-red-600 bg-red-50 p-4 rounded-lg border border-red-200 shadow-sm">
-          ⚠️ {fetchError}
-        </p>
-      </div>
-    );
-
-  if (!userData)
+  // --- Loading / Error Views ---
+  if (loading)
     return (
       <div className="flex justify-center items-center min-h-screen">
         <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-[#dc3545]"></div>
+      </div>
+    );
+
+  if (fetchError && !userData)
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <p className="text-red-600 bg-red-50 p-4 rounded-lg border border-red-200 shadow-sm flex items-center gap-2">
+          <AlertCircle /> {fetchError}
+        </p>
       </div>
     );
 
@@ -262,32 +297,19 @@ const Profile = () => {
             <div className="h-32 bg-gradient-to-r from-[#dc3545] to-red-400"></div>
 
             <div className="px-6 pb-6 text-center relative">
-              <div className="relative -mt-16 inline-block">
+              <div className="relative -mt-16 inline-block group">
                 <img
                   src={getProfileImageSrc()}
                   onError={(e) => (e.target.src = DefaultPhoto)}
                   alt="Profile"
-                  className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-md bg-white"
+                  className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-md bg-white transition-transform group-hover:scale-105"
                 />
                 <button
                   onClick={() => setShowForm(!showForm)}
                   className="absolute bottom-2 right-0 bg-white p-2 rounded-full shadow-md hover:bg-gray-100 transition-colors border border-gray-200 text-[#dc3545]"
                   title={t("profile.editTitle")}
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-4 w-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M15.232 5.232l3.536 3.536M9 13l6.586-6.586a2 2 0 112.828 2.828L11.828 15H9v-2z"
-                    />
-                  </svg>
+                  <Edit size={16} />
                 </button>
               </div>
 
@@ -297,7 +319,6 @@ const Profile = () => {
               <p className="text-sm text-gray-500 mb-6">{userData.email}</p>
 
               <div className="space-y-4 text-sm text-gray-600 bg-gray-50 p-4 rounded-xl text-start">
-                {/* User Info Details ... */}
                 <div className="flex items-center gap-3">
                   <span className="p-2 bg-white rounded-full text-[#dc3545] shadow-sm">
                     📞
@@ -328,20 +349,7 @@ const Profile = () => {
                 onClick={handleLogout}
                 className="mt-6 w-full py-2.5 px-4 border border-red-200 text-red-600 rounded-xl hover:bg-red-50 transition-colors font-semibold flex items-center justify-center gap-2"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                  />
-                </svg>
+                <LogOut size={20} />
                 {t("profile.logout")}
               </button>
             </div>
@@ -359,9 +367,9 @@ const Profile = () => {
                 </h4>
                 <button
                   onClick={() => setShowForm(false)}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-gray-400 hover:text-gray-600 p-1 hover:bg-gray-100 rounded-full transition"
                 >
-                  ✕
+                  <X size={24} />
                 </button>
               </div>
 
@@ -399,7 +407,8 @@ const Profile = () => {
                         }`}
                       />
                       {errors[field.name] && (
-                        <p className="text-red-500 text-xs mt-1 font-medium">
+                        <p className="text-red-500 text-xs mt-1 font-medium flex items-center gap-1">
+                          <AlertCircle size={12} />
                           {errors[field.name].message}
                         </p>
                       )}
@@ -490,7 +499,8 @@ const Profile = () => {
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
                 <h4 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-                  📦 {t("profile.swapTitle")}
+                  <Package className="text-[#dc3545]" />
+                  {t("profile.swapTitle")}
                 </h4>
                 <span className="bg-red-50 text-[#dc3545] px-3 py-1 rounded-full text-sm font-bold border border-red-100">
                   {myItems.length}
@@ -502,20 +512,7 @@ const Profile = () => {
                 onClick={() => navigate("/AddItem")}
                 className="flex items-center gap-2 px-4 py-2 bg-[#dc3545] text-white rounded-lg hover:bg-red-700 transition shadow-md hover:shadow-lg text-sm font-bold"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 4v16m8-8H4"
-                  />
-                </svg>
+                <Plus size={20} />
                 {t("profile.addItem")}
               </button>
             </div>
@@ -528,9 +525,9 @@ const Profile = () => {
                 </p>
                 <button
                   onClick={() => navigate("/AddItem")}
-                  className="mt-4 text-[#dc3545] font-semibold hover:underline"
+                  className="mt-4 text-[#dc3545] font-semibold hover:underline flex items-center justify-center gap-1 mx-auto"
                 >
-                  + أضف منتجك الأول
+                  <Plus size={16} /> أضف منتجك الأول
                 </button>
               </div>
             ) : (
@@ -552,26 +549,13 @@ const Profile = () => {
                       />
                       <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
 
-                      {/* زر الحذف العائم الذي يفتح النافذة */}
+                      {/* زر الحذف العائم */}
                       <button
-                        onClick={() => handleDeleteClick(item.id)} // 👈👈 هنا التغيير
-                        className="absolute top-2 right-2 bg-white/90 p-1.5 rounded-full text-red-500 hover:bg-red-500 hover:text-white transition opacity-0 group-hover:opacity-100 shadow-sm z-10"
+                        onClick={() => showDeleteConfirm(item.id)}
+                        className="absolute top-2 right-2 bg-white/90 p-2 rounded-full text-red-500 hover:bg-red-500 hover:text-white transition opacity-0 group-hover:opacity-100 shadow-sm z-10"
                         title="حذف العنصر"
                       >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-5 w-5"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                          />
-                        </svg>
+                        <Trash2 size={18} />
                       </button>
                     </div>
 
@@ -593,23 +577,10 @@ const Profile = () => {
 
                         <div className="flex gap-2">
                           <button
-                            onClick={() => navigate(`/edit/${item.id}`)}
+                            onClick={() => navigate(`/edit-item/${item.id}`)}
                             className="flex items-center gap-1.5 text-sm font-semibold text-gray-600 hover:text-[#dc3545] transition-colors"
                           >
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              className="h-4 w-4"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke="currentColor"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                              />
-                            </svg>
+                            <Edit size={16} />
                             {t("profile.editItem")}
                           </button>
                         </div>
@@ -623,57 +594,68 @@ const Profile = () => {
         </div>
       </div>
 
-      {/* 🔥🔥🔥 Custom Delete Modal 🔥🔥🔥 */}
-      {showDeleteModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm transition-opacity">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6 transform transition-all scale-100 animate-fade-in-up">
+      {/* ========================================================= */}
+      {/* 🚀🚀🚀 Unified Beautiful Popup (Alert & Confirm) 🚀🚀🚀 */}
+      {/* ========================================================= */}
+      {popup.isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6 transform transition-all scale-100 animate-scaleIn">
             <div className="flex flex-col items-center text-center">
-              {/* أيقونة التحذير */}
-              <div className="bg-red-50 p-4 rounded-full mb-4">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-8 w-8 text-[#dc3545]"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                  />
-                </svg>
+              {/* أيقونة متغيرة حسب النوع */}
+              <div
+                className={`p-4 rounded-full mb-4 ${
+                  popup.type === "delete" || popup.type === "error"
+                    ? "bg-red-50 text-red-600"
+                    : "bg-green-50 text-green-600"
+                }`}
+              >
+                {popup.type === "delete" ? (
+                  <Trash2 size={32} />
+                ) : popup.type === "error" ? (
+                  <AlertCircle size={32} />
+                ) : (
+                  <CheckCircle size={32} />
+                )}
               </div>
 
               <h3 className="text-xl font-bold text-gray-900 mb-2">
-                {t("تأكيد الحذف")} {/* أو "Confirm Deletion" */}
+                {popup.title}
               </h3>
-              <p className="text-gray-500 text-sm mb-6">
-                {t(
-                  "هل أنت متأكد أنك تريد حذف هذا المنتج؟ لا يمكن التراجع عن هذا الإجراء."
-                )}
+              <p className="text-gray-500 text-sm mb-6 leading-relaxed">
+                {popup.message}
               </p>
 
+              {/* أزرار التحكم */}
               <div className="flex gap-3 w-full">
-                <button
-                  onClick={closeDeleteModal}
-                  disabled={isDeleting}
-                  className="flex-1 px-4 py-2.5 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition focus:outline-none focus:ring-2 focus:ring-gray-300"
-                >
-                  {t("profile.cancel") || "إلغاء"}
-                </button>
-                <button
-                  onClick={confirmDelete}
-                  disabled={isDeleting}
-                  className="flex-1 px-4 py-2.5 bg-[#dc3545] text-white rounded-xl font-medium hover:bg-red-700 transition shadow-lg shadow-red-200 flex justify-center items-center gap-2 focus:outline-none focus:ring-2 focus:ring-red-400"
-                >
-                  {isDeleting ? (
-                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  ) : (
-                    t("حذف")
-                  )}
-                </button>
+                {popup.type === "delete" ? (
+                  <>
+                    <button
+                      onClick={closePopup}
+                      disabled={isProcessing}
+                      className="flex-1 px-4 py-2.5 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition"
+                    >
+                      {t("profile.cancel") || "إلغاء"}
+                    </button>
+                    <button
+                      onClick={popup.onConfirm}
+                      disabled={isProcessing}
+                      className="flex-1 px-4 py-2.5 bg-[#dc3545] text-white rounded-xl font-medium hover:bg-red-700 transition shadow-lg shadow-red-200 flex justify-center items-center gap-2"
+                    >
+                      {isProcessing ? (
+                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      ) : (
+                        t("حذف")
+                      )}
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    onClick={closePopup}
+                    className="w-full px-4 py-2.5 bg-gray-900 text-white rounded-xl font-medium hover:bg-gray-800 transition"
+                  >
+                    {t("common.ok") || "حسناً"}
+                  </button>
+                )}
               </div>
             </div>
           </div>
