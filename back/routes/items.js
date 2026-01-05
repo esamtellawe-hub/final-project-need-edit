@@ -3,7 +3,7 @@ const router = express.Router();
 const upload = require("../middleware/upload");
 const { Item, ItemImage, User, Category } = require("../models");
 const { body, validationResult } = require("express-validator");
-
+const verifyToken = require("../middleware/verifyToken");
 // ==========================================
 // 1. دوال مساعدة للتحقق (Validation Helpers)
 // ==========================================
@@ -126,65 +126,54 @@ router.post(
     }
   }
 );
-
 // ✅ تعديل منتج (PUT)
 router.put(
   "/:id",
+  verifyToken,
   upload.fields([
     { name: "cover", maxCount: 1 },
-    { name: "gallery_images", maxCount: 10 },
+    { name: "gallery", maxCount: 10 },
   ]),
-  updateItemValidators,
-  validate,
   async (req, res) => {
     try {
-      const { id } = req.params;
-      const { title, description, price, category_id, user_id } = req.body;
+      const itemId = req.params.id;
+      // تأكد أن المستخدم هو صاحب المنتج
+      const item = await Item.findByPk(itemId);
+      if (!item) return res.status(404).json({ error: "Item not found" });
 
-      const item = await Item.findByPk(id);
-      if (!item) {
-        return res.status(404).json({ error: "المنتج غير موجود" });
+      if (item.user_id !== req.user.id) {
+        return res.status(403).json({ error: "Unauthorized" });
       }
 
-      if (item.user_id.toString() !== user_id.toString()) {
-        return res
-          .status(403)
-          .json({ error: "ليس لديك صلاحية تعديل هذا المنتج" });
+      // 1. تحديث البيانات النصية
+      const { title, description, price, category_id } = req.body;
+
+      item.title = title || item.title;
+      item.description = description || item.description;
+      item.price = price || item.price;
+      item.category_id = category_id || item.category_id;
+
+      // 2. تحديث صورة الغلاف (إذا تم رفع صورة جديدة باسم 'cover')
+      if (req.files && req.files["cover"]) {
+        // (اختياري: ممكن تحذف الصورة القديمة من السيرفر هنا باستخدام fs.unlink)
+        item.cover_image = req.files["cover"][0].filename;
       }
 
-      // إذا تم إرسال فئة جديدة، تحقق من وجودها
-      if (category_id) {
-        const categoryExists = await Category.findByPk(category_id);
-        if (!categoryExists) {
-          return res.status(404).json({ error: "الفئة الجديدة غير موجودة" });
-        }
-      }
+      await item.save();
 
-      const newCover = req.files?.cover?.[0]?.filename || item.cover_image;
-
-      await item.update({
-        title: title !== undefined ? title : item.title,
-        description: description !== undefined ? description : item.description,
-        price: price !== undefined ? price : item.price,
-        category_id: category_id !== undefined ? category_id : item.category_id,
-        cover_image: newCover,
-      });
-
-      const galleryFiles = req.files?.gallery_images || [];
-      if (galleryFiles.length > 0) {
-        await ItemImage.destroy({ where: { item_id: item.id } });
-
-        const images = galleryFiles.map((file) => ({
+      // 3. إضافة صور المعرض (إذا تم رفع صور جديدة باسم 'gallery')
+      if (req.files && req.files["gallery"]) {
+        const galleryImages = req.files["gallery"].map((file) => ({
+          item_id: itemId,
           image_path: file.filename,
-          item_id: item.id,
         }));
-        await ItemImage.bulkCreate(images);
+        await ItemImage.bulkCreate(galleryImages);
       }
 
-      res.json({ message: "✅ تم تعديل المنتج بنجاح", item });
+      res.json({ message: "Item updated successfully", item });
     } catch (err) {
-      console.error("❌ خطأ في تعديل المنتج:", err);
-      res.status(500).json({ error: "فشل تعديل المنتج" });
+      console.error("Update Error:", err);
+      res.status(500).json({ error: "Server Error" });
     }
   }
 );
@@ -261,5 +250,32 @@ router.get("/user/:userId", async (req, res) => {
     res.status(500).json({ error: "Failed to fetch user items" });
   }
 });
+// ✅ حذف منتج (DELETE)
+router.delete("/:id", verifyToken, async (req, res) => {
+  try {
+    const item = await Item.findByPk(req.params.id);
 
+    if (!item) {
+      return res.status(404).json({ error: "Item not found" });
+    }
+
+    // تحقق أن المستخدم هو صاحب المنتج
+    if (item.user_id !== req.user.id) {
+      return res
+        .status(403)
+        .json({ error: "Unauthorized to delete this item" });
+    }
+
+    // حذف الصور المرتبطة (اختياري: يفضل حذف الملفات من السيرفر أيضاً)
+    await ItemImage.destroy({ where: { item_id: item.id } });
+
+    // حذف المنتج
+    await item.destroy();
+
+    res.json({ message: "Item deleted successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Server error" });
+  }
+});
 module.exports = router;

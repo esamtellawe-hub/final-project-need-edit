@@ -340,7 +340,7 @@ const Profile = () => {
                     📅
                   </span>
                   <span className="font-medium">
-                    {t("profile.memberSince")} 2024
+                    {t("profile.memberSince")}
                   </span>
                 </div>
               </div>
@@ -577,7 +577,7 @@ const Profile = () => {
 
                         <div className="flex gap-2">
                           <button
-                            onClick={() => navigate(`/edit-item/${item.id}`)}
+                            onClick={() => navigate(`/edit/${item.id}`)}
                             className="flex items-center gap-1.5 text-sm font-semibold text-gray-600 hover:text-[#dc3545] transition-colors"
                           >
                             <Edit size={16} />

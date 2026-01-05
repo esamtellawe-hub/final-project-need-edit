@@ -291,13 +291,26 @@
     "emailRequired": "البريد الإلكتروني مطلوب",
     "emailInvalid": "صيغة البريد غير صحيحة",
     "passwordRequired": "كلمة المرور مطلوبة",
+    "priceRequired": "القيمة التقديرية مطلوبة",
     "passwordMin": "كلمة المرور يجب أن تكون 8 خانات على الأقل",
     "passwordComplexity": "يجب أن تحتوي على حرف كبير، صغير، رقم، ورمز خاص",
     "phoneRequired": "رقم الهاتف مطلوب",
     "phoneInvalid": "رقم الهاتف يجب أن يكون أردني صحيح (مثال: 0791234567)",
     "locationRequired": "الموقع مطلوب",
     "fileSizeError": "حجم الملف كبير جداً (أقصى حد 5 ميجا)",
-    "photoLabel": "اختر صورة شخصية"
+    "photoLabel": "اختر صورة شخصية",
+    "coverLabel": "صورة الغلاف",
+    "galleryLabel": "صور المعرض",
+    "phoneNumeric": "رقم الهاتف مطلوب ",
+    "titleRequired": "اسم المنتج مطلوب",
+    "titleMin": "الاسم يجب أن يكون 3 أحرف على الأقل",
+    "descRequired": "الوصف مطلوب",
+    "descMin": "الوصف يجب أن يكون 10 أحرف على الأقل",
+    "priceNumeric": "السعر يجب أن يكون رقماً",
+    "passwordMismatch": "كلمتا المرور غير متطابقتين",
+    "passwordWeak": "كلمة المرور ضعيفة جداً",
+    "pricePositive": "السعر يجب أن يكون أكبر من صفر",
+    "categoryRequired": "يرجى اختيار الفئة"
   },
   "profile": {
     "editTitle": "تعديل الملف الشخصي",
@@ -343,9 +356,37 @@
     "description": "الوصف",
     "price": "السعر",
     "cover": "صورة الغلاف",
-    "gallery": "صور إضافية",
+
     "save": "حفظ التعديلات",
-    "success": "تم تعديل المنتج بنجاح"
+    "success": "تم تعديل المنتج بنجاح",
+    "error": "فشل تعديل المنتج، حاول مرة أخرى.",
+    "errors": {
+      "required": "هذا الحقل مطلوب",
+      "requiredCover": "صورة الغلاف مطلوبة",
+      "invalidPrice": "يجب أن تكون القيمة أكبر من 0",
+      "shortDesc": "الوصف قصير جداً",
+      "invalidType": "نوع الملف غير مدعوم (فقط صور)",
+      "tooLarge": "حجم الملف كبير جداً (أقصى حد 5MB)",
+      "maxGallery": "يمكنك رفع 10 صور فقط كحد أقصى",
+      "someInvalid": "بعض الملفات غير صالحة وتم استبعادها",
+      "itemNotFound": "المنتج غير موجود",
+      "unauthorized": "ليس لديك إذن لتعديل هذا المنتج",
+      "fetchFailed": "فشل في تحميل البيانات. يرجى التحقق من الاتصال.",
+      "updateFailed": "فشل في تحديث المنتج. حاول مرة أخرى."
+    },
+    "subtitle": "قم بتحديث تفاصيل منتجك لزيادة فرص البيع",
+
+    "category": "الفئة",
+
+    "selectCategory": "اختر الفئة...",
+    "imagesTitle": "صور المنتج",
+    "removeImage": "إزالة الصورة",
+    "keepImage": "الاحتفاظ بالصورة",
+    "changeImage": "تغيير الصورة",
+    "uploadCover": "اضغط لرفع صورة جديدة",
+    "gallery": "المعرض (إضافة المزيد)",
+    "uploadGallery": "اضغط لاختيار صور متعددة",
+    "imagesSelected": "تم اختيار {{count}} صور جديدة"
   },
 
   "notFound": {
