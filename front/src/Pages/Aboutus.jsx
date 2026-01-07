@@ -172,7 +172,7 @@ const AboutUs = () => {
             <div className="text-center group">
               <div className="w-32 h-32 mx-auto rounded-full overflow-hidden border-4 border-white shadow-lg mb-4 transform group-hover:scale-110 transition duration-300">
                 <img
-                  src="/images/profile.jpeg"
+                  src="/images/jana.jpeg"
                   alt="Jana Ibrahim"
                   className="w-full h-full object-cover"
                 />

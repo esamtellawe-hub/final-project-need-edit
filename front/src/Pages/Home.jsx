@@ -3,9 +3,21 @@ import Graphic from "../../public/images/Graphic (1).svg";
 import swaping from "../../public/images/swaping (2).png";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 const Home = () => {
   const { t, i18n } = useTranslation();
+  const { user } = useAuth(); // عشان نعرف اذا مسجل دخول
+  const navigate = useNavigate(); // عشان التنقل
+
+  // 2. دالة الفحص عند الضغط
+  const handleAddItemClick = () => {
+    if (user) {
+      navigate("/AddItem");
+    } else {
+      navigate("/Login");
+    }
+  };
   return (
     <div dir={i18n.language === "ar" ? "ltr" : "rtl"}>
       {/* القسم الأول */}
@@ -16,11 +28,13 @@ const Home = () => {
           </h1>
           <p className="text-gray-700 text-lg mt-4">{t("home.description")}</p>
           <div className="mt-6 flex flex-col sm:flex-row gap-4 justify-center xl:justify-start">
-            <Link to="/AddItem">
-              <button className="bg-[#dc3545] text-white px-6 py-3 rounded-lg text-lg hover:bg-red-700 transition">
-                {t("home.listButton")}
-              </button>
-            </Link>
+            <button
+              onClick={handleAddItemClick}
+              className="bg-[#dc3545] text-white px-6 py-3 rounded-lg text-lg hover:bg-red-700 transition"
+            >
+              {t("home.listButton")}
+            </button>
+
             <Link to="/Swap">
               <button className="border border-[#dc3545] text-[#dc3545] px-6 py-3 rounded-lg text-lg hover:bg-[#dc3545] transition hover:text-white">
                 {t("home.swipeButton")}
@@ -69,11 +83,13 @@ const Home = () => {
             <p className="text-gray-700 text-lg mt-4 leading-relaxed">
               {t("home.swapDescription")}
             </p>
-            <Link to="/AddItem">
-              <button className="bg-[#dc3545] text-white px-6 py-3 rounded-lg text-lg mt-6 hover:bg-red-700 transition">
-                {t("home.swapButton")}
-              </button>
-            </Link>
+
+            <button
+              onClick={handleAddItemClick}
+              className="bg-[#dc3545] text-white px-6 py-3 rounded-lg text-lg mt-6 hover:bg-red-700 transition"
+            >
+              {t("home.swapButton")}
+            </button>
           </div>
         </div>
       </section>

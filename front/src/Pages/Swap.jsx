@@ -184,7 +184,13 @@ const Swap = () => {
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
               <button
-                onClick={() => navigate("/AddItem")}
+                onClick={
+                  
+                  () =>{ 
+                    if(user) navigate("/AddItem")
+                    else navigate("/Login")
+                  }
+                  }
                 className="px-8 py-4 bg-[#dc3545] text-white rounded-2xl font-bold text-lg hover:bg-red-700 hover:shadow-lg hover:shadow-red-200 transition-all transform hover:-translate-y-1"
               >
                 {t("common.addItem")}

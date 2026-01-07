@@ -45,6 +45,7 @@ const IconsBar = () => {
       {/* 2. أيقونة الرسائل */}
       <Link
         to="/messages"
+        onClick={handleFavoritesClick}
         className="mr-3 relative p-1 rounded-full hover:bg-gray-100 transition-colors text-gray-700 hover:text-[#dc3545]"
         title="الرسائل"
       >
